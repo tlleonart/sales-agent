@@ -1,0 +1,79 @@
+# ------------------------------------------------------------------
+# GENERAL NODE.JS & DEPENDENCIES
+# ------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json # Opcional: algunos prefieren commitearlo, otros no. Generalmente SÍ se commitea.
+.npm/
+
+# ------------------------------------------------------------------
+# ENVIRONMENT & SECRETS (CRITICAL)
+# ------------------------------------------------------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+
+# Excluir archivos de credenciales exportados por n8n si los hubiera
+n8n-credentials.json
+n8n-workflows.json
+
+# MCP configuration (contains API keys)
+.mcp.json
+
+# Pero SÍ permitimos el ejemplo
+!.env.example
+
+# ------------------------------------------------------------------
+# CONVEX (DATABASE)
+# ------------------------------------------------------------------
+# Archivos generados automáticamente por Convex que no deben ir al repo
+convex/_generated/
+
+# ------------------------------------------------------------------
+# N8N & DOCKER INFRASTRUCTURE
+# ------------------------------------------------------------------
+# Persistencia local de n8n (SQLite y archivos binarios)
+# Es vital ignorar esto para no subir tu base de datos local a GitHub
+.n8n/
+n8n_data/
+
+# Persistencia de base de datos Postgres (si decides usarla en lugar de SQLite)
+postgres_data/
+
+# Archivos temporales generados por los workflows (PDFs, Imágenes)
+tmp/
+temp/
+downloads/
+generated_pdfs/
+generated_images/
+
+# Docker logs
+docker-compose.override.yml
+
+# ------------------------------------------------------------------
+# NEXT.JS (FASE 2 PREP)
+# ------------------------------------------------------------------
+.next/
+out/
+build/
+dist/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# ------------------------------------------------------------------
+# OS & IDE FILES
+# ------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
