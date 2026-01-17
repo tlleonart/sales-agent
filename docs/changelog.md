@@ -4,6 +4,42 @@ Todos los cambios notables al proyecto "OOH Agent" se documentarán en este arch
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
+## [1.2.0] - 2026-01-17 - Professional Multi-Page PDF System
+
+### Added
+
+#### Schema Enhancements
+- **Extended inventory specs** with: `total_dimensions`, `sub_format`, `material_spec`, `send_format`, `send_deadline`, `additional_info`
+- **Location neighborhood** field for barrio-level detail
+- **`getFullDetails`** query returns all fields needed for product sheets
+- **`getMultipleFullDetails`** query for batch retrieval
+- **`storeRichProposal`** mutation stores complete inventory snapshots
+- **`getLatestRichProposal`** query retrieves rich proposal data
+
+#### HTML Templates
+- **`templates/pdf-styles.css`** - Global branding CSS
+- **`templates/pdf-cover.html`** - Cover page with logo + portfolio grid
+- **`templates/pdf-summary.html`** - Pricing summary table
+- **`templates/pdf-product-sheet.html`** - Individual product sheets
+- **`templates/build-pdf-html.js`** - n8n Code node builder
+
+### Changed
+
+#### n8n Workflows
+- **Image Composer** (`SDjs73CyTsOoPzKr`) - Enhanced to accept client logo/name for mockups
+- **PDF Generator** (`VW93F4HBY5Gz7pCr`) - Complete redesign with:
+  - Page 1: Cover with logo and portfolio images
+  - Page 2: Summary table (Soporte, Ubicación, Disponibilidad, Localidad, Valores)
+  - Pages 3+: Product sheets (mockup image, specs table, Google Maps)
+
+### Technical Details
+- PDF format matches `pdf-example.pdf` reference
+- Google Maps Static API integration for location maps (requires API key)
+- Gotenberg HTML-to-PDF conversion maintained
+- Google Drive upload for PDF storage
+
+---
+
 ## [1.1.0] - 2026-01-17 - Testing Manual Completo + Fixes
 
 ### Added

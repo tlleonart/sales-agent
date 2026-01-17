@@ -62,8 +62,8 @@
 **Workflows de assets:**
 | Workflow | ID | Nodos | Estado |
 |----------|-----|-------|--------|
-| Image Composer | `SDjs73CyTsOoPzKr` | 5 | **Activo** |
-| PDF Generator | `gPFkNF3tV61AWB70` | 4 | **Activo** |
+| Image Composer | `SDjs73CyTsOoPzKr` | 5 | **Activo** (Enhanced) |
+| PDF Generator | `VW93F4HBY5Gz7pCr` | 6 | **Activo** (Redesigned) |
 
 ### Fase 2: MVP (Web App) 🛑 NO INICIADA
 
@@ -137,15 +137,16 @@
 
 ## Próximos pasos
 
-### Mejora del Sistema PDF (En Progreso)
-1. **Rediseñar PDF Generator** - Multi-page professional format matching `pdf-example.pdf`
-2. **Integrar AI Mockups** - Overlay client logo on billboard images
-3. **Agregar Google Maps** - Static map images per product sheet
-4. **HTML Preview** - Show HTML before converting to PDF
+### Mejora del Sistema PDF ✅ COMPLETADA (2026-01-17)
+1. ✅ **Rediseñar PDF Generator** - Multi-page professional format matching `pdf-example.pdf`
+2. ✅ **Integrar AI Mockups** - Image Composer enhanced with client branding
+3. ✅ **Agregar Google Maps** - Static map images per product sheet (requires API key)
+4. 🔄 **HTML Preview** - Available in templates, needs chat integration
 
 ### Pendientes Menores
 1. **Credencial SMTP** - Asignar al nodo "Enviar Email" en Third Party Handler
-2. **Fase 2** - Web App con Next.js (futuro)
+2. **Google Maps API Key** - Configurar en n8n para mapas en PDF
+3. **Fase 2** - Web App con Next.js (futuro)
 
 ---
 
@@ -180,7 +181,7 @@
 - `OOH Agent - Pricing Engine` (`OXpqBrKT4nrOpQrE`) - Cálculo de cotizaciones
 - `OOH Agent - Third Party Handler` (`FVBUo5gma5SdMjGN`) - Gestión de terceros
 - `OOH Agent - Image Composer` (`SDjs73CyTsOoPzKr`) - Generación de mockups con Replicate
-- `OOH Agent - PDF Generator` (`gPFkNF3tV61AWB70`) - Generación de propuestas PDF
+- `OOH Agent - PDF Generator` (`VW93F4HBY5Gz7pCr`) - Generación de propuestas PDF (multi-page professional format)
 
 ---
 
