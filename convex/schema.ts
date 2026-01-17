@@ -26,6 +26,7 @@ export default defineSchema({
       address: v.string(),
       city: v.string(),
       zone: v.string(), // Clave para filtrado: "GBA Norte", "GBA Sur", "CABA", etc.
+      neighborhood: v.optional(v.string()), // Barrio específico ej: "Barrio Norte", "Palermo", "Recoleta"
       coordinates: v.object({
         lat: v.number(),
         long: v.number(),
@@ -43,9 +44,15 @@ export default defineSchema({
 
     // Especificaciones técnicas del soporte
     specs: v.object({
-      visible_dimensions: v.string(),  // Ej: "10m x 5m"
-      resolution: v.optional(v.string()), // Para digitales
+      visible_dimensions: v.string(),  // Ej: "10m x 5m" (dimensiones visibles)
+      total_dimensions: v.optional(v.string()), // Dimensiones totales incluyendo bolsillos
+      resolution: v.optional(v.string()), // Ej: "el archivo de armado al 10% del tamaño a 300 dpi"
       lighting: v.boolean(),           // Si tiene iluminación
+      sub_format: v.optional(v.string()), // Ej: "Front", "No"
+      material_spec: v.optional(v.string()), // Ej: "Lona Front 8 oz- Medida final incluye bolsillo..."
+      send_format: v.optional(v.string()), // Ej: "Illustrator: CS / AI – EPS_Photoshop: CS / TI..."
+      send_deadline: v.optional(v.string()), // Ej: "7 días hábiles antes exhibición"
+      additional_info: v.optional(v.string()), // Notas adicionales del soporte
     }),
 
     // Disponibilidad y estado

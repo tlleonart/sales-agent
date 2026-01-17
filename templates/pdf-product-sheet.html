@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ADDRESS}} - {{CODE}}</title>
+  <style>
+    {{STYLES}}
+  </style>
+</head>
+<body>
+  <!-- PRODUCT SHEET PAGE -->
+  <div class="page product-sheet">
+    <!-- Blue Header Bar -->
+    <div class="product-header">
+      <div class="product-address">{{ADDRESS}}</div>
+      <div class="product-code">Código: {{CODE}} // {{TYPE}}</div>
+    </div>
+
+    <div class="product-content">
+      <!-- Left Column: Image & Additional Info -->
+      <div class="product-image-section">
+        <img src="{{MOCKUP_IMAGE_URL}}" alt="{{ADDRESS}}" class="product-mockup">
+
+        <div class="product-additional-info">
+          <h4>Información adicional soporte</h4>
+          <p>Servicios adicionales: 0</p>
+          <p>{{ADDITIONAL_INFO}}</p>
+        </div>
+      </div>
+
+      <!-- Right Column: Specs Table & Map -->
+      <div class="product-details-section">
+        <table class="specs-table">
+          <tr>
+            <th>Localidad/Barrio</th>
+            <td>{{NEIGHBORHOOD}}</td>
+          </tr>
+          <tr>
+            <th>Sub-formato</th>
+            <td>{{SUB_FORMAT}}</td>
+          </tr>
+          <tr>
+            <th>Dimensiones (visible)</th>
+            <td>{{VISIBLE_DIMENSIONS}}</td>
+          </tr>
+          <tr>
+            <th>Dimensiones (total)</th>
+            <td>{{TOTAL_DIMENSIONS}}</td>
+          </tr>
+          <tr>
+            <th>Iluminación</th>
+            <td>{{LIGHTING}}</td>
+          </tr>
+          <tr>
+            <th>Resolución</th>
+            <td>{{RESOLUTION}}</td>
+          </tr>
+          <tr>
+            <th>Especificación material</th>
+            <td>{{MATERIAL_SPEC}}</td>
+          </tr>
+          <tr>
+            <th>Formato de envío</th>
+            <td>{{SEND_FORMAT}}</td>
+          </tr>
+          <tr>
+            <th>Fecha envío original</th>
+            <td>{{SEND_DEADLINE}}</td>
+          </tr>
+          <tr>
+            <th>OTS diario</th>
+            <td>{{formatNumber DAILY_OTS}}</td>
+          </tr>
+        </table>
+
+        <div class="product-map">
+          <img src="{{MAP_IMAGE_URL}}" alt="Ubicación en mapa">
+          <a href="https://www.google.com/maps?q={{LAT}},{{LONG}}" class="map-link" target="_blank">
+            » Ver más detalles y mapa «
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <div class="footer-contact">
+        Global Argentina | +54 11 9 38902707 |
+      </div>
+      <div class="footer-page">Página {{PAGE_NUMBER}} de {{TOTAL_PAGES}}</div>
+    </div>
+  </div>
+</body>
+</html>
+
+<!--
+TEMPLATE VARIABLES:
+- {{STYLES}}: CSS styles (from pdf-styles.css)
+- {{ADDRESS}}: Full address of the support
+- {{CODE}}: Support code (e.g., GFG072)
+- {{TYPE}}: Medianera/Columna/Espectacular
+- {{MOCKUP_IMAGE_URL}}: AI-generated mockup image URL
+- {{ADDITIONAL_INFO}}: Additional notes about the support
+- {{NEIGHBORHOOD}}: Barrio (e.g., Barrio Norte, Palermo)
+- {{SUB_FORMAT}}: Sub-format (e.g., Front, No)
+- {{VISIBLE_DIMENSIONS}}: Visible dimensions string
+- {{TOTAL_DIMENSIONS}}: Total dimensions string
+- {{LIGHTING}}: Sí/No
+- {{RESOLUTION}}: Resolution specification
+- {{MATERIAL_SPEC}}: Material specification
+- {{SEND_FORMAT}}: File format for sending
+- {{SEND_DEADLINE}}: Deadline for sending materials
+- {{DAILY_OTS}}: Daily OTS number
+- {{MAP_IMAGE_URL}}: Google Maps static image URL
+- {{LAT}}: Latitude for map link
+- {{LONG}}: Longitude for map link
+- {{PAGE_NUMBER}}: Current page number
+- {{TOTAL_PAGES}}: Total number of pages in the document
+-->

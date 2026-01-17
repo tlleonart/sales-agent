@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Vía Pública - Propuesta</title>
+  <style>
+    {{STYLES}}
+  </style>
+</head>
+<body>
+  <!-- COVER PAGE -->
+  <div class="page cover-page">
+    <div class="cover-logo">
+      <img src="{{LOGO_URL}}" alt="Global Vía Pública" class="logo" style="height: 60px;">
+    </div>
+
+    <div class="cover-grid">
+      {{#each PORTFOLIO_IMAGES}}
+      <div class="cover-grid-item">
+        <img src="{{this}}" alt="Portfolio">
+      </div>
+      {{/each}}
+    </div>
+
+    <div class="page-footer">
+      <div class="footer-contact">
+        Global Argentina | +54 11 9 38902707 |
+      </div>
+      <div class="footer-page">Página 1 de {{TOTAL_PAGES}}</div>
+    </div>
+  </div>
+</body>
+</html>
+
+<!--
+TEMPLATE VARIABLES:
+- {{STYLES}}: CSS styles (from pdf-styles.css)
+- {{LOGO_URL}}: URL/base64 of Global logo
+- {{PORTFOLIO_IMAGES}}: Array of 12 image URLs for the grid
+- {{TOTAL_PAGES}}: Total number of pages in the document
+-->

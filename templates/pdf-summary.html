@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propuesta Comercial - {{CLIENT_NAME}}</title>
+  <style>
+    {{STYLES}}
+  </style>
+</head>
+<body>
+  <!-- SUMMARY PAGE -->
+  <div class="page summary-page">
+    <div class="summary-header">
+      <img src="{{LOGO_URL}}" alt="Global Vía Pública" class="logo-small">
+    </div>
+
+    <h1 class="summary-title">Propuesta comercial</h1>
+
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th style="width: 10%;">Soporte</th>
+          <th style="width: 30%;">Ubicación</th>
+          <th style="width: 15%;">Disponibilidad</th>
+          <th style="width: 10%;">Localidad</th>
+          <th style="width: 12%;" class="price-col">Valor Exhibición Mensual 1Q</th>
+          <th style="width: 8%;" class="price-col">Tasas Mensuales</th>
+          <th style="width: 8%;" class="price-col">Instalación</th>
+          <th style="width: 7%;" class="price-col">Producción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each ITEMS}}
+        <tr>
+          <td>{{this.type}}</td>
+          <td>{{this.address}}</td>
+          <td>{{this.availabilityDisplay}}</td>
+          <td>{{this.city}}</td>
+          <td class="price-col currency">$ {{formatNumber this.rental_monthly}}</td>
+          <td class="price-col currency">$ {{formatNumber this.municipal_tax}}</td>
+          <td class="price-col currency">$ {{formatNumber this.installation_cost}}</td>
+          <td class="price-col currency">$ {{formatNumber this.production_cost}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <div class="disclaimers">
+      <p>Los valores detallados en este documento NO incluyen IVA.</p>
+      <p>Los valores de producción e instalación deben revalidarse al momento de realizarse.</p>
+      <p>Las tasas municipales de publicidad pueden sufrir aumentos a partir de las disposiciones tomadas por las autoridades municipales.</p>
+    </div>
+
+    <div class="page-footer">
+      <div class="footer-contact">
+        Global Argentina | +54 11 9 38902707 |
+      </div>
+      <div class="footer-page">Página 2 de {{TOTAL_PAGES}}</div>
+    </div>
+  </div>
+</body>
+</html>
+
+<!--
+TEMPLATE VARIABLES:
+- {{STYLES}}: CSS styles (from pdf-styles.css)
+- {{LOGO_URL}}: URL/base64 of Global logo
+- {{CLIENT_NAME}}: Name of the client
+- {{ITEMS}}: Array of proposal items with:
+  - type: Medianera/Columna/Espectacular
+  - address: Full address
+  - availabilityDisplay: "Disponible Enero 2026" etc.
+  - city: CABA, GBA Norte, etc.
+  - rental_monthly: Monthly rental price
+  - municipal_tax: Monthly municipal tax
+  - installation_cost: Installation cost
+  - production_cost: Production cost
+- {{TOTAL_PAGES}}: Total number of pages in the document
+-->

@@ -1,0 +1,330 @@
+/**
+ * PDF Styles - Global Vía Pública
+ * Matching corporate branding from pdf-example.pdf
+ */
+
+/* Base Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #333;
+  background: #fff;
+}
+
+/* Page Setup */
+@page {
+  size: A4 portrait;
+  margin: 15mm 15mm 20mm 15mm;
+}
+
+.page {
+  width: 100%;
+  min-height: 100vh;
+  page-break-after: always;
+  position: relative;
+  padding-bottom: 40px;
+}
+
+.page:last-child {
+  page-break-after: avoid;
+}
+
+/* Global Logo */
+.logo {
+  height: 50px;
+  width: auto;
+}
+
+.logo-small {
+  height: 35px;
+  width: auto;
+}
+
+/* ===== COVER PAGE ===== */
+.cover-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.cover-logo {
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.cover-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 700px;
+}
+
+.cover-grid-item {
+  aspect-ratio: 16/10;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.cover-grid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ===== SUMMARY PAGE ===== */
+.summary-page {
+  padding: 0;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.summary-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a365d;
+  margin-top: 10px;
+}
+
+/* Summary Table */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9px;
+  margin-bottom: 20px;
+}
+
+.summary-table thead {
+  background: #1a365d;
+  color: white;
+}
+
+.summary-table th {
+  padding: 8px 6px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid #1a365d;
+}
+
+.summary-table td {
+  padding: 6px;
+  border: 1px solid #ddd;
+  vertical-align: top;
+}
+
+.summary-table tbody tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.summary-table .price-col {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Disclaimers */
+.disclaimers {
+  font-size: 9px;
+  color: #666;
+  margin-top: 20px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-left: 3px solid #1a365d;
+}
+
+.disclaimers p {
+  margin-bottom: 4px;
+}
+
+/* ===== PRODUCT SHEET ===== */
+.product-sheet {
+  padding: 0;
+}
+
+.product-header {
+  background: #2563eb;
+  color: white;
+  padding: 12px 15px;
+  margin: -15mm -15mm 15px -15mm;
+  width: calc(100% + 30mm);
+}
+
+.product-address {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.product-code {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.product-content {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  gap: 20px;
+}
+
+.product-image-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-mockup {
+  width: 100%;
+  height: auto;
+  max-height: 350px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.product-additional-info {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+}
+
+.product-additional-info h4 {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1a365d;
+  margin-bottom: 6px;
+}
+
+.product-additional-info p {
+  font-size: 10px;
+  color: #666;
+}
+
+.product-details-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Specs Table */
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  margin-bottom: 15px;
+}
+
+.specs-table th {
+  text-align: right;
+  padding: 6px 10px 6px 0;
+  font-weight: 600;
+  color: #1a365d;
+  width: 45%;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.specs-table td {
+  padding: 6px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Map */
+.product-map {
+  margin-top: auto;
+}
+
+.product-map img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.map-link {
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  color: #2563eb;
+  margin-top: 8px;
+  text-decoration: none;
+}
+
+.map-link:hover {
+  text-decoration: underline;
+}
+
+/* ===== FOOTER ===== */
+.page-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid #e2e8f0;
+  font-size: 9px;
+  color: #666;
+}
+
+.footer-contact {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.footer-page {
+  font-weight: 500;
+}
+
+/* ===== UTILITY CLASSES ===== */
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.font-bold {
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #666;
+}
+
+.currency {
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+/* Print-specific */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    page-break-inside: avoid;
+  }
+
+  .product-header {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

@@ -254,6 +254,136 @@ export const blockDates = mutation({
 });
 
 /**
+ * Query: Obtener detalles completos de un soporte
+ * Retorna toda la información necesaria para la ficha de producto en el PDF.
+ */
+export const getFullDetails = query({
+  args: {
+    inventoryId: v.id("inventory"),
+  },
+  handler: async (ctx, args) => {
+    const item = await ctx.db.get(args.inventoryId);
+
+    if (!item) {
+      return null;
+    }
+
+    // Return all fields needed for product sheet PDF
+    return {
+      _id: item._id,
+      code: item.code,
+      type: item.type,
+      owner: item.owner,
+      isThirdParty: item.owner !== "Global",
+
+      // Location details
+      location: {
+        address: item.location.address,
+        city: item.location.city,
+        zone: item.location.zone,
+        neighborhood: item.location.neighborhood ?? item.location.city,
+        coordinates: item.location.coordinates,
+      },
+
+      // All specs for product sheet
+      specs: {
+        visible_dimensions: item.specs.visible_dimensions,
+        total_dimensions: item.specs.total_dimensions ?? item.specs.visible_dimensions,
+        resolution: item.specs.resolution ?? "el archivo de armado al 10% del tamaño a 300 dpi",
+        lighting: item.specs.lighting,
+        sub_format: item.specs.sub_format ?? "No",
+        material_spec: item.specs.material_spec ?? "Lona Front 8 oz",
+        send_format: item.specs.send_format ?? "Illustrator: CS / AI – EPS / Photoshop: CS / TIFF",
+        send_deadline: item.specs.send_deadline ?? "7 días hábiles antes exhibición",
+        additional_info: item.specs.additional_info ?? "Sin información adicional",
+      },
+
+      // Pricing
+      pricing: item.pricing,
+
+      // Availability
+      availability: {
+        status: item.availability.status,
+        blocked_dates: item.availability.blocked_dates,
+        displayStatus: item.availability.status === "available"
+          ? "Disponible"
+          : item.availability.status === "reserved"
+          ? "Reservado"
+          : item.availability.status === "maintenance"
+          ? "En mantenimiento"
+          : "Pendiente confirmación",
+      },
+
+      // Media
+      media: item.media,
+
+      // Metrics
+      metrics: item.metrics,
+    };
+  },
+});
+
+/**
+ * Query: Obtener múltiples soportes con detalles completos
+ * Útil para generar propuestas con múltiples items.
+ */
+export const getMultipleFullDetails = query({
+  args: {
+    inventoryIds: v.array(v.id("inventory")),
+  },
+  handler: async (ctx, args) => {
+    const items = await Promise.all(
+      args.inventoryIds.map(async (id) => {
+        const item = await ctx.db.get(id);
+        if (!item) return null;
+
+        return {
+          _id: item._id,
+          code: item.code,
+          type: item.type,
+          owner: item.owner,
+          isThirdParty: item.owner !== "Global",
+          location: {
+            address: item.location.address,
+            city: item.location.city,
+            zone: item.location.zone,
+            neighborhood: item.location.neighborhood ?? item.location.city,
+            coordinates: item.location.coordinates,
+          },
+          specs: {
+            visible_dimensions: item.specs.visible_dimensions,
+            total_dimensions: item.specs.total_dimensions ?? item.specs.visible_dimensions,
+            resolution: item.specs.resolution ?? "el archivo de armado al 10% del tamaño a 300 dpi",
+            lighting: item.specs.lighting,
+            sub_format: item.specs.sub_format ?? "No",
+            material_spec: item.specs.material_spec ?? "Lona Front 8 oz",
+            send_format: item.specs.send_format ?? "Illustrator: CS / AI – EPS / Photoshop: CS / TIFF",
+            send_deadline: item.specs.send_deadline ?? "7 días hábiles antes exhibición",
+            additional_info: item.specs.additional_info ?? "Sin información adicional",
+          },
+          pricing: item.pricing,
+          availability: {
+            status: item.availability.status,
+            blocked_dates: item.availability.blocked_dates,
+            displayStatus: item.availability.status === "available"
+              ? "Disponible"
+              : item.availability.status === "reserved"
+              ? "Reservado"
+              : item.availability.status === "maintenance"
+              ? "En mantenimiento"
+              : "Pendiente confirmación",
+          },
+          media: item.media,
+          metrics: item.metrics,
+        };
+      })
+    );
+
+    return items.filter((item) => item !== null);
+  },
+});
+
+/**
  * Mutation: Desbloquear fechas
  * Remueve fechas del array de blocked_dates.
  */
