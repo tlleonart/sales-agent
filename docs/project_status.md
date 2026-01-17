@@ -1,7 +1,7 @@
 # Project Status - OOH Agent
 
 **Last Updated:** 2026-01-17
-**Current Phase:** Phase 1.3 - Integrations Complete, Prototype Functional
+**Current Phase:** Phase 1 Complete - Manual Testing Passed ✅
 **Project Start:** January 2026
 
 ---
@@ -85,24 +85,67 @@
 
 ---
 
-## Pruebas realizadas
+## Pruebas realizadas (Testing Manual Completo) ✅
 
-### Chat con búsqueda de inventario ✅
+### Fase 1 - Testing Manual - 2026-01-17
+
+| Test | Descripción | Estado |
+|------|-------------|--------|
+| 1.1 | Búsqueda por zona (CABA) | ✅ Passed |
+| 1.2 | Búsqueda por tipo (Espectaculares) | ✅ Passed |
+| 1.3 | Búsqueda combinada (Medianeras GBA Norte) | ✅ Passed |
+| 2.1 | Cotización simple (soporte propio GFG050) | ✅ Passed |
+| 2.2 | Cotización tercero (GFG052 UrbanMedia) | ✅ Passed |
+| 3.1 | Identificación de terceros (GBA Sur) | ✅ Passed |
+| 4.1 | Generación de PDF | ✅ Passed |
+| 5.1 | Flujo conversacional | ✅ Passed |
+
+### Detalles de Tests
+
+#### Test 1.1 - Búsqueda por zona ✅
 - **Query:** "¿Qué soportes tienen disponibles en CABA?"
-- **Resultado:** 11 soportes encontrados, 4 en CABA correctamente filtrados
+- **Resultado:** 5 soportes en CABA correctamente filtrados
 - **Respuesta:** Incluye código, tipo, propietario, ubicación, precios y disponibilidad
 
-### Cotización de precios ✅
-- **Query:** "Dame una cotización para 30 días del soporte GFG050 en Abasto"
-- **Resultado:** Cotización detallada con desglose de costos
-- **Incluye:** Alquiler, producción, instalación, tasa municipal, NETO y BRUTO con IVA
+#### Test 2.1 - Cotización simple ✅
+- **Query:** "Dame una cotización para 30 días del soporte GFG050"
+- **Resultado:** Cotización detallada con desglose completo
+- **Valores verificados:** Alquiler $1,500,000 + Producción $280,000 + Instalación $140,000 + Tasa $85,000 + Comisión 20%
+- **NETO:** $2,406,000 | **BRUTO (con IVA 21%):** $2,911,260
+
+#### Test 2.2 - Cotización tercero ✅
+- **Query:** "Cotiza el soporte GFG052 en Palermo por 30 días"
+- **Resultado:** Incluye comisión intermediario 10% adicional
+- **Identificación correcta:** UrbanMedia como propietario tercero
+
+#### Test 4.1 - PDF Generation ✅
+- **Query:** Generar PDF de propuesta para Pepsi Argentina
+- **Resultado:** PDF generado y subido a Google Drive exitosamente
+- **Tamaño:** ~148 KB
+
+### Issues encontrados y resueltos durante testing
+
+1. **$fromAI() returning null** (Pricing Engine)
+   - **Problema:** toolWorkflow no pasaba parámetros correctamente
+   - **Solución:** Reemplazar toolWorkflow con Code Tool + JSON schema
+
+2. **OpenAI Rate Limiting** (Test 5.1)
+   - **Observación:** Heavy testing consumió cuota de tokens
+   - **Impacto:** Mínimo, tests completados exitosamente
 
 ---
 
 ## Próximos pasos
 
-1. **Asignar credencial SMTP** al nodo "Enviar Email" en Third Party Handler (manual en UI)
-2. **Siguiente fase:** Iniciar desarrollo de Web App (Fase 2)
+### Mejora del Sistema PDF (En Progreso)
+1. **Rediseñar PDF Generator** - Multi-page professional format matching `pdf-example.pdf`
+2. **Integrar AI Mockups** - Overlay client logo on billboard images
+3. **Agregar Google Maps** - Static map images per product sheet
+4. **HTML Preview** - Show HTML before converting to PDF
+
+### Pendientes Menores
+1. **Credencial SMTP** - Asignar al nodo "Enviar Email" en Third Party Handler
+2. **Fase 2** - Web App con Next.js (futuro)
 
 ---
 
@@ -164,8 +207,7 @@
 
 ## Blockers actuales
 
-- **Credencial Replicate:** Necesita configurarse en n8n para Image Composer
-- **Credencial SMTP:** Necesita configurarse para envío de emails a terceros
+- **Credencial SMTP:** Necesita configurarse para envío de emails a terceros (menor prioridad)
 
 ---
 

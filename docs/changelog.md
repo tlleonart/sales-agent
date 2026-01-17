@@ -4,6 +4,41 @@ Todos los cambios notables al proyecto "OOH Agent" se documentarán en este arch
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
+## [1.1.0] - 2026-01-17 - Testing Manual Completo + Fixes
+
+### Added
+- **Convex proposals module** (`proposals.ts`): State-based approach for PDF generation
+  - `storePendingProposal` mutation stores proposal data in audit_logs
+  - `getLatestPendingProposal` query retrieves data for PDF workflow
+  - Workaround for n8n `$fromAI()` parameter passing limitations
+
+### Fixed
+- **Pricing Engine workflow** (`OXpqBrKT4nrOpQrE`): Fixed `$fromAI()` returning null
+  - Replaced toolWorkflow with Code Tool
+  - Parameters now passed via JSON schema correctly
+  - Verified: calculations match expected values
+
+### Verified (Manual Testing)
+All 8 test cases from `manual-testing-guide.md` passed:
+
+| Test | Description | Status |
+|------|-------------|--------|
+| 1.1 | Inventory search by zone | ✅ |
+| 1.2 | Inventory search by type | ✅ |
+| 1.3 | Combined search (zone + type) | ✅ |
+| 2.1 | Simple quotation (own support) | ✅ |
+| 2.2 | Third-party quotation | ✅ |
+| 3.1 | Third-party identification | ✅ |
+| 4.1 | PDF generation | ✅ |
+| 5.1 | Conversational flow | ✅ |
+
+### Notes
+- OpenAI rate limiting observed during heavy testing (TPM limit)
+- All workflows active and functional
+- PDF uploads successfully to Google Drive
+
+---
+
 ## [1.0.0] - 2026-01-17 - Fase 1 Completa: Prototipo Funcional
 
 ### Added
