@@ -8,6 +8,7 @@
  * - $json.proposal: The proposal data from Convex
  * - $json.logoBase64: Base64 encoded logo image
  * - $json.portfolioImageUrl: URL for portfolio images (used in cover grid)
+ * - $json.googleMapsApiKey: Google Maps Static API key (from n8n credentials)
  *
  * Output:
  * - html: Complete HTML document ready for Gotenberg
@@ -17,6 +18,7 @@
 const proposal = $json.proposal;
 const logoBase64 = $json.logoBase64 || '';
 const portfolioImageUrl = $json.portfolioImageUrl || '';
+const googleMapsApiKey = $json.googleMapsApiKey || $env.GOOGLE_MAPS_API_KEY || '';
 
 // Helper function to format numbers with thousand separators
 function formatNumber(num) {
@@ -65,32 +67,27 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 20px;
+  min-height: calc(100vh - 80px);
 }
 
 .cover-logo {
-  margin-top: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 60px;
 }
 
-.cover-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  width: 100%;
-  max-width: 700px;
+.cover-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a365d;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
-.cover-grid-item {
-  aspect-ratio: 16/10;
-  overflow: hidden;
-  border-radius: 4px;
-}
-
-.cover-grid-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.cover-subtitle {
+  font-size: 18px;
+  color: #666;
+  text-align: center;
 }
 
 /* Summary Page */
@@ -295,19 +292,22 @@ const totalPages = 2 + (proposal.items?.length || 0);
 
 // Build Cover Page
 function buildCoverPage() {
-  // Create grid of 12 images using the portfolio image
-  const gridItems = Array(12).fill(portfolioImageUrl)
-    .map(url => `<div class="cover-grid-item"><img src="${url}" alt="Portfolio"></div>`)
-    .join('');
+  // Get current month and year in Spanish
+  const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  const now = new Date();
+  const currentMonth = months[now.getMonth()];
+  const currentYear = now.getFullYear();
+
+  const clientName = proposal.clientName || 'Cliente';
 
   return `
   <div class="page cover-page">
     <div class="cover-logo">
-      <img src="${logoBase64}" alt="Global Vía Pública" class="logo" style="height: 60px;">
+      <img src="${logoBase64}" alt="Global Vía Pública" class="logo" style="height: 80px;">
     </div>
-    <div class="cover-grid">
-      ${gridItems}
-    </div>
+    <div class="cover-title">Propuesta ${clientName}</div>
+    <div class="cover-subtitle">${currentMonth} ${currentYear}</div>
     <div class="page-footer">
       <div class="footer-contact">Global Argentina | +54 11 9 38902707 |</div>
       <div class="footer-page">Página 1 de ${totalPages}</div>
@@ -396,7 +396,7 @@ function buildProductSheet(item, pageNumber) {
           <tr><th>OTS diario</th><td>${formatNumber(item.daily_ots)}</td></tr>
         </table>
         <div class="product-map">
-          <img src="${item.map_image_url || `https://maps.googleapis.com/maps/api/staticmap?center=${item.lat},${item.long}&zoom=15&size=300x200&markers=color:red|${item.lat},${item.long}&key=AIzaSyAXbWpSsu306Ue8qqRSMzGkZZQ_oHJVYJM`}" alt="Ubicación en mapa">
+          <img src="${item.map_image_url || (googleMapsApiKey ? `https://maps.googleapis.com/maps/api/staticmap?center=${item.lat},${item.long}&zoom=15&size=300x200&markers=color:red|${item.lat},${item.long}&key=${googleMapsApiKey}` : '')}" alt="Ubicación en mapa">
           <a href="https://www.google.com/maps?q=${item.lat},${item.long}" class="map-link" target="_blank">
             » Ver más detalles y mapa «
           </a>

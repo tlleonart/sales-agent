@@ -1,5 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { proposalStatusValidator, type ProposalStatus, getStatusDisplay, EVENT_TYPES, type EventType } from "./types";
+import { PRICING_CONFIG, GLOBAL_OWNER } from "./config";
 
 /**
  * Proposals module for OOH Agent
@@ -277,13 +279,14 @@ export const getProposal = query({
 export const listProposals = query({
   args: {
     limit: v.optional(v.number()),
-    status: v.optional(v.string()),
+    status: v.optional(proposalStatusValidator),
   },
   handler: async (ctx, args) => {
     if (args.status) {
+      const statusFilter = args.status as ProposalStatus;
       const proposals = await ctx.db
         .query("proposals")
-        .withIndex("by_status", (q) => q.eq("status", args.status!))
+        .withIndex("by_status", (q) => q.eq("status", statusFilter))
         .order("desc")
         .take(args.limit ?? 10);
       return proposals;
@@ -316,12 +319,6 @@ export const storeProposalByCodes = mutation({
     const now = new Date().toISOString();
     const pendingId = `rich_${Date.now()}`;
 
-    // Pricing constants
-    const AGENCY_COMMISSION_RATE = 0.20;
-    const INTERMEDIARY_COMMISSION_RATE = 0.10;
-    const IVA_RATE = 0.21;
-    const DAYS_PER_MONTH = 30;
-
     // Fetch full details for each inventory code
     const items = [];
     let totalNeto = 0;
@@ -337,11 +334,11 @@ export const storeProposalByCodes = mutation({
         continue; // Skip if not found
       }
 
-      const isThirdParty = item.owner !== "Global";
+      const isThirdParty = item.owner !== GLOBAL_OWNER;
 
-      // Calculate pricing for this item
-      const rentalProportional = (item.pricing.rental_monthly / DAYS_PER_MONTH) * args.campaignDays;
-      const municipalTaxProportional = (item.pricing.municipal_tax / DAYS_PER_MONTH) * args.campaignDays;
+      // Calculate pricing for this item using shared config
+      const rentalProportional = (item.pricing.rental_monthly / PRICING_CONFIG.DAYS_PER_MONTH) * args.campaignDays;
+      const municipalTaxProportional = (item.pricing.municipal_tax / PRICING_CONFIG.DAYS_PER_MONTH) * args.campaignDays;
 
       const subtotalNeto =
         rentalProportional +
@@ -349,13 +346,13 @@ export const storeProposalByCodes = mutation({
         item.pricing.installation_cost +
         municipalTaxProportional;
 
-      const agencyCommission = subtotalNeto * AGENCY_COMMISSION_RATE;
+      const agencyCommission = subtotalNeto * PRICING_CONFIG.AGENCY_COMMISSION_RATE;
       const intermediaryCommission = isThirdParty
-        ? subtotalNeto * INTERMEDIARY_COMMISSION_RATE
+        ? subtotalNeto * PRICING_CONFIG.INTERMEDIARY_COMMISSION_RATE
         : 0;
 
       const itemTotalNeto = subtotalNeto + agencyCommission + intermediaryCommission;
-      const iva = itemTotalNeto * IVA_RATE;
+      const iva = itemTotalNeto * PRICING_CONFIG.IVA_RATE;
       const itemTotalBruto = itemTotalNeto + iva;
 
       totalNeto += itemTotalNeto;
@@ -404,13 +401,7 @@ export const storeProposalByCodes = mutation({
         totalBruto: Math.round(itemTotalBruto),
 
         // Availability display
-        availabilityDisplay: item.availability.status === "available"
-          ? "Disponible"
-          : item.availability.status === "reserved"
-          ? "Reservado"
-          : item.availability.status === "maintenance"
-          ? "En mantenimiento"
-          : "Pendiente confirmación",
+        availabilityDisplay: getStatusDisplay(item.availability.status),
       });
     }
 
@@ -423,7 +414,7 @@ export const storeProposalByCodes = mutation({
 
     // Store rich proposal
     await ctx.db.insert("audit_logs", {
-      event_type: "proposal_rich_pending",
+      event_type: EVENT_TYPES.PROPOSAL_RICH_PENDING as EventType,
       description: `Rich proposal for ${args.clientName} with ${items.length} items`,
       metadata: {
         proposalId: pendingId,
@@ -469,18 +460,6 @@ export const storeProposalWithMockups = mutation({
     const now = new Date().toISOString();
     const pendingId = `rich_${Date.now()}`;
 
-    // Pricing constants
-    const AGENCY_COMMISSION_RATE = 0.20;
-    const INTERMEDIARY_COMMISSION_RATE = 0.10;
-    const IVA_RATE = 0.21;
-    const DAYS_PER_MONTH = 30;
-
-    // Create a map of mockup URLs by code
-    const mockupUrlMap = new Map<string, string>();
-    for (const item of args.items) {
-      mockupUrlMap.set(item.code, item.mockupUrl);
-    }
-
     // Fetch full details for each inventory code
     const items = [];
     let totalNeto = 0;
@@ -496,11 +475,11 @@ export const storeProposalWithMockups = mutation({
         continue;
       }
 
-      const isThirdParty = item.owner !== "Global";
+      const isThirdParty = item.owner !== GLOBAL_OWNER;
 
-      // Calculate pricing for this item
-      const rentalProportional = (item.pricing.rental_monthly / DAYS_PER_MONTH) * args.campaignDays;
-      const municipalTaxProportional = (item.pricing.municipal_tax / DAYS_PER_MONTH) * args.campaignDays;
+      // Calculate pricing for this item using shared config
+      const rentalProportional = (item.pricing.rental_monthly / PRICING_CONFIG.DAYS_PER_MONTH) * args.campaignDays;
+      const municipalTaxProportional = (item.pricing.municipal_tax / PRICING_CONFIG.DAYS_PER_MONTH) * args.campaignDays;
 
       const subtotalNeto =
         rentalProportional +
@@ -508,13 +487,13 @@ export const storeProposalWithMockups = mutation({
         item.pricing.installation_cost +
         municipalTaxProportional;
 
-      const agencyCommission = subtotalNeto * AGENCY_COMMISSION_RATE;
+      const agencyCommission = subtotalNeto * PRICING_CONFIG.AGENCY_COMMISSION_RATE;
       const intermediaryCommission = isThirdParty
-        ? subtotalNeto * INTERMEDIARY_COMMISSION_RATE
+        ? subtotalNeto * PRICING_CONFIG.INTERMEDIARY_COMMISSION_RATE
         : 0;
 
       const itemTotalNeto = subtotalNeto + agencyCommission + intermediaryCommission;
-      const iva = itemTotalNeto * IVA_RATE;
+      const iva = itemTotalNeto * PRICING_CONFIG.IVA_RATE;
       const itemTotalBruto = itemTotalNeto + iva;
 
       totalNeto += itemTotalNeto;
@@ -563,13 +542,7 @@ export const storeProposalWithMockups = mutation({
         totalBruto: Math.round(itemTotalBruto),
 
         // Availability display
-        availabilityDisplay: item.availability.status === "available"
-          ? "Disponible"
-          : item.availability.status === "reserved"
-          ? "Reservado"
-          : item.availability.status === "maintenance"
-          ? "En mantenimiento"
-          : "Pendiente confirmación",
+        availabilityDisplay: getStatusDisplay(item.availability.status),
       });
     }
 
@@ -582,7 +555,7 @@ export const storeProposalWithMockups = mutation({
 
     // Store rich proposal with mockups
     await ctx.db.insert("audit_logs", {
-      event_type: "proposal_rich_pending",
+      event_type: EVENT_TYPES.PROPOSAL_RICH_PENDING as EventType,
       description: `Rich proposal with mockups for ${args.clientName} with ${items.length} items`,
       metadata: {
         proposalId: pendingId,

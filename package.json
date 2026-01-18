@@ -3,18 +3,25 @@
   "version": "0.1.0",
   "description": "Agente comercial automatizado para publicidad exterior (OOH)",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "npx convex dev",
     "deploy": "npx convex deploy",
     "lint": "eslint . --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "convex": "^1.17.4"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@types/node": "^22.10.0",
+    "convex-test": "^0.0.41",
+    "eslint": "^9.17.0",
     "typescript": "^5.7.0",
-    "eslint": "^9.17.0"
+    "typescript-eslint": "^8.53.0",
+    "vitest": "^4.0.17"
   }
 }

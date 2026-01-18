@@ -4,6 +4,189 @@ Todos los cambios notables al proyecto "OOH Agent" se documentarán en este arch
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
+## [1.6.0] - 2026-01-18 - Error Handling & Free Mockup Generation
+
+### Added
+
+#### Free Mockup Generation Module (convex/mockups.ts)
+- **100% FREE mockup generation** for prototype phase
+- `generateMockupUrl` - Generate mockup URL for single support
+- `generateBatchMockups` - Generate mockups for multiple supports
+- `storeProposalWithGeneratedMockups` - Store proposal with auto-generated mockups
+- Uses [placehold.co](https://placehold.co) service (completely free, no API key needed)
+- Prepared for Cloudinary upgrade when needed (free tier: 25k transformations/month)
+
+#### Mockup Features
+- Client name displayed prominently on billboard placeholder
+- Support code and type identification
+- Professional dark blue (#1a365d) with white text
+- 1200x800 resolution (configurable)
+
+### Changed
+
+#### Error Handling Improvements
+All Convex functions now return consistent error objects instead of `null`:
+
+**pricing.ts:**
+- `calculateItemPrice` - Returns `{success: false, error: "..."}` instead of `null`
+- `calculateProposalTotal` - Now reports which items were not found in `warnings`
+- `simulatePrice` - Returns `{success: false, error: "..."}` instead of `null`
+
+**inventory.ts:**
+- `getByCode` - Returns `{success: false, error: "..."}` instead of `null`
+- `getFullDetails` - Returns `{success: true, data: {...}}` or `{success: false, error: "..."}`
+- `getMultipleFullDetails` - Now reports which IDs were not found in `warnings`
+
+#### Error Message Format (Consistent Pattern)
+```typescript
+// Success case
+{ success: true, data: {...} }
+
+// Error case
+{ success: false, error: "Mensaje descriptivo en español" }
+
+// With warnings (partial success)
+{ success: true, data: [...], warnings: { message: "...", notFoundIds: [...] } }
+```
+
+### Technical Details
+
+#### New File
+- `convex/mockups.ts` - Mockup generation module with free placeholder service
+
+#### Test Updates
+- Updated `pricing.test.ts` to handle new error response format
+
+### Verified
+- ✅ TypeScript compiles without errors
+- ✅ ESLint passes with no warnings
+- ✅ All 11 unit tests pass
+- ✅ Mockup generation tested: `generateMockupUrl("Coca-Cola", "GFG050", "Medianera")`
+- ✅ Proposal with mockups tested: `storeProposalWithGeneratedMockups("Pepsi", 30, ["GFG050", "GFG053"])`
+
+### Notes on Image Generation
+
+**Current (Prototype):**
+- DALL-E 3 generates NEW billboard images with client branding
+- Placeholder fallback available (100% free)
+- Works immediately with existing OpenAI credentials
+
+**Future Upgrade Path (MVP) - Documented in `docs/mockup-improvement-plan.md`:**
+1. **Replicate SDXL Inpainting** (Recommended) - Edit real billboard photos, ~$0.003/image
+2. **DALL-E 2 Edit** - Use existing credentials, ~$0.02/image
+3. **Hugging Face** (Free tier) - AI inpainting for realistic mockups
+
+**MVP Goal:** Take actual billboard photo → Replace only billboard content with client branding → Keep same street/location
+
+---
+
+## [1.5.0] - 2026-01-18 - Code Quality & Testing Infrastructure
+
+### Added
+
+#### Testing Framework
+- **Vitest + convex-test** - Unit testing infrastructure for Convex functions
+- `npm test` and `npm run test:watch` commands
+- 11 tests covering pricing calculations and third-party detection
+
+#### Type Safety
+- **convex/types.ts** - Shared type definitions and validators
+  - `inventoryStatusValidator` - Type-safe inventory status (available, reserved, maintenance, pending_third_party)
+  - `proposalStatusValidator` - Type-safe proposal status (draft, sent, approved, rejected)
+  - `eventTypeValidator` - Type-safe audit event types
+  - `getStatusDisplay()` helper for localized status display
+  - `isThirdParty()` helper function
+
+#### Shared Configuration
+- **convex/config.ts** - Centralized pricing constants
+  - `PRICING_CONFIG` with commission rates (20% agency, 10% intermediary, 21% IVA)
+  - `GLOBAL_OWNER` constant for third-party detection
+  - `calculatePriceBreakdown()` helper function
+  - Eliminates code duplication across modules
+
+#### Code Quality
+- **eslint.config.js** - ESLint 9.x configuration with TypeScript rules
+- Added `"type": "module"` to package.json
+
+### Changed
+
+#### Schema (convex/schema.ts)
+- `inventory.availability.status` now uses union validator (type-safe)
+- `proposals.status` now uses union validator
+- `audit_logs.event_type` now uses union validator
+
+#### Pricing Module (convex/pricing.ts)
+- Refactored to use shared `calculatePriceBreakdown()` helper
+- Uses `GLOBAL_OWNER` constant instead of hardcoded "Global" string
+- Removed unused imports (action, api)
+
+#### Proposals Module (convex/proposals.ts)
+- Uses shared `PRICING_CONFIG` instead of inline constants
+- Uses `getStatusDisplay()` for availability display text
+- Uses `EVENT_TYPES` constants for audit log events
+
+#### Seed Module (convex/seed.ts)
+- Uses `INVENTORY_STATUS` constants for type-safe status values
+
+#### PDF Template (templates/build-pdf-html.js)
+- **Security fix**: Google Maps API key now loaded from `$json.googleMapsApiKey` or `$env.GOOGLE_MAPS_API_KEY`
+- Removed hardcoded API key from code
+
+### Technical Details
+
+#### Files Created
+- `eslint.config.js` - ESLint 9.x flat config
+- `vitest.config.ts` - Vitest configuration
+- `convex/types.ts` - Shared types and validators
+- `convex/config.ts` - Shared pricing configuration
+- `convex/pricing.test.ts` - Unit tests for pricing logic
+- `docs/codebase-review.md` - Comprehensive code review document
+
+#### Dependencies Added
+- `typescript-eslint` ^8.53.0
+- `@eslint/js` ^9.39.2
+- `vitest` ^4.0.17
+- `convex-test` ^0.0.41
+
+### Verified
+- ✅ TypeScript compiles without errors
+- ✅ ESLint passes with no warnings
+- ✅ All 11 unit tests pass
+- ✅ Convex functions work correctly (tested live)
+- ✅ Pricing calculations verified with GFG050 test case
+
+---
+
+## [1.4.0] - 2026-01-18 - PDF Cover Simplification & Mockup Integration
+
+### Changed
+
+#### PDF Cover Page
+- **Simplified cover design** - Removed portfolio image grid from cover page
+- Cover now shows only: Global logo (centered) + "Propuesta {clientName}" + "{Month} {Year}"
+- Cleaner, more professional appearance
+
+#### n8n Workflows
+- **Master Chat** (`cg5rOPNa2HHSmBwQ`) - Added new tool `GuardarPropuestaConMockups`
+  - Stores proposals with AI-generated mockup URLs
+  - Uses `proposals:storeProposalWithMockups` Convex mutation
+  - Enables mockup images to appear in PDFs
+- **AI Agent Instructions** - Updated to clarify two PDF generation flows:
+  - **With mockups**: GenerarImagen → GuardarPropuestaConMockups → GenerarPDF
+  - **Without mockups (fast)**: GuardarPropuesta → GenerarPDF
+
+### Technical Details
+- New HTTP Request Tool: `GuardarPropuestaConMockups` accepts `items` array with `code` and `mockupUrl`
+- Cover page CSS updated: removed grid styles, added centered title styling
+- Spanish month names generated dynamically (Enero, Febrero, etc.)
+
+### Verified
+- ✅ PDF generation tested with simplified cover page
+- ✅ Test Company proposal: cover shows "Propuesta Test Company - Enero 2026"
+- ✅ Google Drive upload working correctly
+
+---
+
 ## [1.3.0] - 2026-01-18 - DALL-E Image Generation
 
 ### Changed

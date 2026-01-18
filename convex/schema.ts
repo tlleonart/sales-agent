@@ -1,5 +1,10 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import {
+  inventoryStatusValidator,
+  proposalStatusValidator,
+  eventTypeValidator,
+} from "./types";
 
 /**
  * Schema para OOH Agent - Fase 1 Prototipo
@@ -58,7 +63,7 @@ export default defineSchema({
     // Disponibilidad y estado
     availability: v.object({
       blocked_dates: v.array(v.string()), // Fechas ISO bloqueadas
-      status: v.string(), // "available", "reserved", "maintenance", "pending_third_party"
+      status: inventoryStatusValidator, // Type-safe status values
     }),
 
     // Material visual
@@ -120,7 +125,7 @@ export default defineSchema({
     total_bruto: v.number(),
 
     // Estado de la propuesta
-    status: v.string(), // "draft", "sent", "approved", "rejected"
+    status: proposalStatusValidator, // Type-safe status values
 
     // URL del PDF generado
     pdf_url: v.optional(v.string()),
@@ -138,7 +143,7 @@ export default defineSchema({
    */
   audit_logs: defineTable({
     // Tipo de evento
-    event_type: v.string(), // "email_sent", "proposal_generated", "availability_changed"
+    event_type: eventTypeValidator, // Type-safe event types
 
     // Descripción del evento
     description: v.string(),

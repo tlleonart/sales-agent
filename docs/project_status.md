@@ -1,7 +1,7 @@
 # Project Status - OOH Agent
 
 **Last Updated:** 2026-01-18
-**Current Phase:** Phase 1 Complete - All Tests Verified ✅
+**Current Phase:** Phase 1 Complete - v1.6.0 with Free Mockups ✅
 **Project Start:** January 2026
 
 ---
@@ -151,10 +151,21 @@
 3. ✅ **Agregar Google Maps** - Static map images per product sheet (requires API key)
 4. 🔄 **HTML Preview** - Available in templates, needs chat integration
 
+### Mejora del Sistema PDF v1.3 ✅ COMPLETADA (2026-01-18)
+1. ✅ **Cover page simplificada** - Removido grid de imágenes, solo logo + título cliente + mes/año
+2. ✅ **Soporte para mockups IA** - Nueva herramienta `GuardarPropuestaConMockups` para almacenar URLs de DALL-E
+3. ✅ **Flujo de mockups documentado** - AI puede generar imágenes y vincularlas al PDF
+
+### v1.6.0 - Error Handling & Free Mockups ✅ COMPLETADO (2026-01-18)
+1. ✅ **Error Handling mejorado** - Todas las funciones Convex retornan `{success, error}` en lugar de `null`
+2. ✅ **Mockups GRATUITOS** - Nuevo módulo `convex/mockups.ts` con generación de placeholder mockups
+3. ✅ **Nueva mutación** - `storeProposalWithGeneratedMockups` genera y almacena mockups automáticamente
+
 ### Pendientes Menores
 1. **Credencial SMTP** - Asignar al nodo "Enviar Email" en Third Party Handler
 2. ~~**Google Maps API Key** - Configurar en n8n para mapas en PDF~~ ✅ COMPLETADO
 3. **Fase 2** - Web App con Next.js (futuro)
+4. **Upgrade de Mockups** - Cloudinary (gratis) o Hugging Face para mockups con imagen real del cartel
 
 ---
 
@@ -166,6 +177,8 @@
 | `docs/user_manual_es.md` | Manual de usuario en español |
 | `docs/demo_pitch.md` | Documento de pitch para demostración al cliente |
 | `docs/manual-testing-guide.md` | Guía de testing manual con casos de prueba |
+| `docs/mockup-improvement-plan.md` | **NUEVO** Plan técnico para edición de imágenes reales en MVP |
+| `docs/codebase-review.md` | Revisión de código y mejoras implementadas |
 
 ---
 
@@ -180,8 +193,13 @@
 - `convex/inventory.ts` - Queries y mutations de inventario.
 - `convex/pricing.ts` - Lógica de cálculo de precios.
 - `convex/partners.ts` - Gestión de terceros.
+- `convex/proposals.ts` - Almacenamiento de propuestas para PDF.
+- `convex/mockups.ts` - **NUEVO** Generación de mockups GRATUITOS con placeholder.
 - `convex/audit.ts` - Logging de eventos.
+- `convex/config.ts` - Configuración compartida de precios.
+- `convex/types.ts` - Tipos y validadores compartidos.
 - `convex/seed.ts` - Script de carga inicial.
+- `convex/pricing.test.ts` - Tests unitarios de pricing.
 
 ### Workflows (n8n) ✅
 - `OOH Agent - Master Chat` (`cg5rOPNa2HHSmBwQ`) - Chat principal con AI Agent

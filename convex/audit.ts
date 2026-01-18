@@ -1,30 +1,19 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-
-/**
- * Tipos de eventos para audit log
- */
-export const EVENT_TYPES = {
-  EMAIL_SENT: "email_sent",
-  PROPOSAL_GENERATED: "proposal_generated",
-  AVAILABILITY_CHANGED: "availability_changed",
-  THIRD_PARTY_REQUEST: "third_party_request",
-  PRICE_CALCULATED: "price_calculated",
-  PDF_GENERATED: "pdf_generated",
-} as const;
+import { EVENT_TYPES, eventTypeValidator, type EventType } from "./types";
 
 /**
  * Mutation: Registrar evento en el audit log
  */
 export const log = mutation({
   args: {
-    eventType: v.string(),
+    eventType: eventTypeValidator,
     description: v.string(),
     metadata: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const logId = await ctx.db.insert("audit_logs", {
-      event_type: args.eventType,
+      event_type: args.eventType as EventType,
       description: args.description,
       metadata: args.metadata,
       timestamp: new Date().toISOString(),
@@ -58,15 +47,16 @@ export const getRecent = query({
  */
 export const getByEventType = query({
   args: {
-    eventType: v.string(),
+    eventType: eventTypeValidator,
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const limit = args.limit ?? 50;
+    const eventType = args.eventType as EventType;
 
     return await ctx.db
       .query("audit_logs")
-      .withIndex("by_event_type", (q) => q.eq("event_type", args.eventType))
+      .withIndex("by_event_type", (q) => q.eq("event_type", eventType))
       .order("desc")
       .take(limit);
   },

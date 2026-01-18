@@ -1,4 +1,5 @@
 import { mutation } from "./_generated/server";
+import { INVENTORY_STATUS, type InventoryStatus } from "./types";
 
 /**
  * Seed de datos para OOH Agent
@@ -53,7 +54,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.medianera,
@@ -85,7 +86,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.espectacular,
@@ -117,7 +118,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.columna,
@@ -150,7 +151,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.medianera,
@@ -182,7 +183,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.espectacular,
@@ -215,7 +216,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.medianera,
@@ -247,7 +248,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.columna,
@@ -280,7 +281,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.medianera,
@@ -312,7 +313,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: ["2026-02-01", "2026-02-15"],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.espectacular,
@@ -344,7 +345,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.columna,
@@ -376,7 +377,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "available",
+      status: INVENTORY_STATUS.AVAILABLE as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.medianera,
@@ -408,7 +409,7 @@ const INVENTORY_DATA = [
     },
     availability: {
       blocked_dates: [],
-      status: "reserved",
+      status: INVENTORY_STATUS.RESERVED as InventoryStatus,
     },
     media: {
       base_image_url: BILLBOARD_IMAGES.espectacular,

@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { inventoryStatusValidator, type InventoryStatus } from "./types";
 
 /**
  * Query: Obtener todo el inventario
@@ -101,7 +102,7 @@ export const search = query({
     maxPrice: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let results = ctx.db.query("inventory");
+    const results = ctx.db.query("inventory");
 
     // Aplicar filtros opcionales
     const allItems = await results.collect();
@@ -146,10 +147,22 @@ export const getByCode = query({
     code: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const item = await ctx.db
       .query("inventory")
       .withIndex("by_code", (q) => q.eq("code", args.code))
       .first();
+
+    if (!item) {
+      return {
+        success: false,
+        error: `No se encontró el soporte con código ${args.code}`,
+      };
+    }
+
+    return {
+      success: true,
+      data: item,
+    };
   },
 });
 
@@ -203,7 +216,7 @@ export const checkAvailability = query({
 export const updateStatus = mutation({
   args: {
     inventoryId: v.id("inventory"),
-    status: v.string(),
+    status: inventoryStatusValidator,
   },
   handler: async (ctx, args) => {
     const item = await ctx.db.get(args.inventoryId);
@@ -212,14 +225,16 @@ export const updateStatus = mutation({
       throw new Error("Soporte no encontrado");
     }
 
+    const newStatus = args.status as InventoryStatus;
+
     await ctx.db.patch(args.inventoryId, {
       availability: {
         ...item.availability,
-        status: args.status,
+        status: newStatus,
       },
     });
 
-    return { success: true, newStatus: args.status };
+    return { success: true, newStatus };
   },
 });
 
@@ -265,60 +280,66 @@ export const getFullDetails = query({
     const item = await ctx.db.get(args.inventoryId);
 
     if (!item) {
-      return null;
+      return {
+        success: false,
+        error: `No se encontró el soporte con ID ${args.inventoryId}`,
+      };
     }
 
     // Return all fields needed for product sheet PDF
     return {
-      _id: item._id,
-      code: item.code,
-      type: item.type,
-      owner: item.owner,
-      isThirdParty: item.owner !== "Global",
+      success: true,
+      data: {
+        _id: item._id,
+        code: item.code,
+        type: item.type,
+        owner: item.owner,
+        isThirdParty: item.owner !== "Global",
 
-      // Location details
-      location: {
-        address: item.location.address,
-        city: item.location.city,
-        zone: item.location.zone,
-        neighborhood: item.location.neighborhood ?? item.location.city,
-        coordinates: item.location.coordinates,
+        // Location details
+        location: {
+          address: item.location.address,
+          city: item.location.city,
+          zone: item.location.zone,
+          neighborhood: item.location.neighborhood ?? item.location.city,
+          coordinates: item.location.coordinates,
+        },
+
+        // All specs for product sheet
+        specs: {
+          visible_dimensions: item.specs.visible_dimensions,
+          total_dimensions: item.specs.total_dimensions ?? item.specs.visible_dimensions,
+          resolution: item.specs.resolution ?? "el archivo de armado al 10% del tamaño a 300 dpi",
+          lighting: item.specs.lighting,
+          sub_format: item.specs.sub_format ?? "No",
+          material_spec: item.specs.material_spec ?? "Lona Front 8 oz",
+          send_format: item.specs.send_format ?? "Illustrator: CS / AI – EPS / Photoshop: CS / TIFF",
+          send_deadline: item.specs.send_deadline ?? "7 días hábiles antes exhibición",
+          additional_info: item.specs.additional_info ?? "Sin información adicional",
+        },
+
+        // Pricing
+        pricing: item.pricing,
+
+        // Availability
+        availability: {
+          status: item.availability.status,
+          blocked_dates: item.availability.blocked_dates,
+          displayStatus: item.availability.status === "available"
+            ? "Disponible"
+            : item.availability.status === "reserved"
+            ? "Reservado"
+            : item.availability.status === "maintenance"
+            ? "En mantenimiento"
+            : "Pendiente confirmación",
+        },
+
+        // Media
+        media: item.media,
+
+        // Metrics
+        metrics: item.metrics,
       },
-
-      // All specs for product sheet
-      specs: {
-        visible_dimensions: item.specs.visible_dimensions,
-        total_dimensions: item.specs.total_dimensions ?? item.specs.visible_dimensions,
-        resolution: item.specs.resolution ?? "el archivo de armado al 10% del tamaño a 300 dpi",
-        lighting: item.specs.lighting,
-        sub_format: item.specs.sub_format ?? "No",
-        material_spec: item.specs.material_spec ?? "Lona Front 8 oz",
-        send_format: item.specs.send_format ?? "Illustrator: CS / AI – EPS / Photoshop: CS / TIFF",
-        send_deadline: item.specs.send_deadline ?? "7 días hábiles antes exhibición",
-        additional_info: item.specs.additional_info ?? "Sin información adicional",
-      },
-
-      // Pricing
-      pricing: item.pricing,
-
-      // Availability
-      availability: {
-        status: item.availability.status,
-        blocked_dates: item.availability.blocked_dates,
-        displayStatus: item.availability.status === "available"
-          ? "Disponible"
-          : item.availability.status === "reserved"
-          ? "Reservado"
-          : item.availability.status === "maintenance"
-          ? "En mantenimiento"
-          : "Pendiente confirmación",
-      },
-
-      // Media
-      media: item.media,
-
-      // Metrics
-      metrics: item.metrics,
     };
   },
 });
@@ -332,54 +353,67 @@ export const getMultipleFullDetails = query({
     inventoryIds: v.array(v.id("inventory")),
   },
   handler: async (ctx, args) => {
-    const items = await Promise.all(
-      args.inventoryIds.map(async (id) => {
-        const item = await ctx.db.get(id);
-        if (!item) return null;
+    const notFoundIds: string[] = [];
+    const items = [];
 
-        return {
-          _id: item._id,
-          code: item.code,
-          type: item.type,
-          owner: item.owner,
-          isThirdParty: item.owner !== "Global",
-          location: {
-            address: item.location.address,
-            city: item.location.city,
-            zone: item.location.zone,
-            neighborhood: item.location.neighborhood ?? item.location.city,
-            coordinates: item.location.coordinates,
-          },
-          specs: {
-            visible_dimensions: item.specs.visible_dimensions,
-            total_dimensions: item.specs.total_dimensions ?? item.specs.visible_dimensions,
-            resolution: item.specs.resolution ?? "el archivo de armado al 10% del tamaño a 300 dpi",
-            lighting: item.specs.lighting,
-            sub_format: item.specs.sub_format ?? "No",
-            material_spec: item.specs.material_spec ?? "Lona Front 8 oz",
-            send_format: item.specs.send_format ?? "Illustrator: CS / AI – EPS / Photoshop: CS / TIFF",
-            send_deadline: item.specs.send_deadline ?? "7 días hábiles antes exhibición",
-            additional_info: item.specs.additional_info ?? "Sin información adicional",
-          },
-          pricing: item.pricing,
-          availability: {
-            status: item.availability.status,
-            blocked_dates: item.availability.blocked_dates,
-            displayStatus: item.availability.status === "available"
-              ? "Disponible"
-              : item.availability.status === "reserved"
-              ? "Reservado"
-              : item.availability.status === "maintenance"
-              ? "En mantenimiento"
-              : "Pendiente confirmación",
-          },
-          media: item.media,
-          metrics: item.metrics,
-        };
-      })
-    );
+    for (const id of args.inventoryIds) {
+      const item = await ctx.db.get(id);
+      if (!item) {
+        notFoundIds.push(id);
+        continue;
+      }
 
-    return items.filter((item) => item !== null);
+      items.push({
+        _id: item._id,
+        code: item.code,
+        type: item.type,
+        owner: item.owner,
+        isThirdParty: item.owner !== "Global",
+        location: {
+          address: item.location.address,
+          city: item.location.city,
+          zone: item.location.zone,
+          neighborhood: item.location.neighborhood ?? item.location.city,
+          coordinates: item.location.coordinates,
+        },
+        specs: {
+          visible_dimensions: item.specs.visible_dimensions,
+          total_dimensions: item.specs.total_dimensions ?? item.specs.visible_dimensions,
+          resolution: item.specs.resolution ?? "el archivo de armado al 10% del tamaño a 300 dpi",
+          lighting: item.specs.lighting,
+          sub_format: item.specs.sub_format ?? "No",
+          material_spec: item.specs.material_spec ?? "Lona Front 8 oz",
+          send_format: item.specs.send_format ?? "Illustrator: CS / AI – EPS / Photoshop: CS / TIFF",
+          send_deadline: item.specs.send_deadline ?? "7 días hábiles antes exhibición",
+          additional_info: item.specs.additional_info ?? "Sin información adicional",
+        },
+        pricing: item.pricing,
+        availability: {
+          status: item.availability.status,
+          blocked_dates: item.availability.blocked_dates,
+          displayStatus: item.availability.status === "available"
+            ? "Disponible"
+            : item.availability.status === "reserved"
+            ? "Reservado"
+            : item.availability.status === "maintenance"
+            ? "En mantenimiento"
+            : "Pendiente confirmación",
+        },
+        media: item.media,
+        metrics: item.metrics,
+      });
+    }
+
+    return {
+      success: true,
+      items,
+      warnings: notFoundIds.length > 0
+        ? {
+            message: `${notFoundIds.length} soporte(s) no encontrado(s)`,
+            notFoundIds
+          }
+        : null,
+    };
   },
 });
 

@@ -12,16 +12,11 @@
   <!-- COVER PAGE -->
   <div class="page cover-page">
     <div class="cover-logo">
-      <img src="{{LOGO_URL}}" alt="Global Vía Pública" class="logo" style="height: 60px;">
+      <img src="{{LOGO_URL}}" alt="Global Vía Pública" class="logo" style="height: 80px;">
     </div>
 
-    <div class="cover-grid">
-      {{#each PORTFOLIO_IMAGES}}
-      <div class="cover-grid-item">
-        <img src="{{this}}" alt="Portfolio">
-      </div>
-      {{/each}}
-    </div>
+    <div class="cover-title">Propuesta {{CLIENT_NAME}}</div>
+    <div class="cover-subtitle">{{CURRENT_MONTH}} {{CURRENT_YEAR}}</div>
 
     <div class="page-footer">
       <div class="footer-contact">
@@ -37,6 +32,8 @@
 TEMPLATE VARIABLES:
 - {{STYLES}}: CSS styles (from pdf-styles.css)
 - {{LOGO_URL}}: URL/base64 of Global logo
-- {{PORTFOLIO_IMAGES}}: Array of 12 image URLs for the grid
+- {{CLIENT_NAME}}: Name of the client for the proposal
+- {{CURRENT_MONTH}}: Current month in Spanish (e.g., "Enero")
+- {{CURRENT_YEAR}}: Current year (e.g., "2026")
 - {{TOTAL_PAGES}}: Total number of pages in the document
 -->

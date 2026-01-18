@@ -1,56 +1,11 @@
-import { query, action } from "./_generated/server";
+import { query } from "./_generated/server";
 import { v } from "convex/values";
-import { api } from "./_generated/api";
-
-/**
- * Constantes de configuración de precios
- * Estos valores podrían moverse a una tabla de configuración en el futuro.
- */
-const PRICING_CONFIG = {
-  // Comisión de la agencia (20%)
-  AGENCY_COMMISSION_RATE: 0.20,
-
-  // Comisión de intermediario para terceros (10%)
-  INTERMEDIARY_COMMISSION_RATE: 0.10,
-
-  // IVA Argentina
-  IVA_RATE: 0.21,
-
-  // Días por mes para cálculos proporcionales
-  DAYS_PER_MONTH: 30,
-};
-
-/**
- * Interface para el cálculo de precio de un item
- */
-interface PriceBreakdown {
-  // Item info
-  inventoryId: string;
-  code: string;
-
-  // Días de campaña
-  campaignDays: number;
-
-  // Desglose de costos
-  rentalProportional: number;    // (Alquiler mensual / 30) * días
-  productionCost: number;        // Costo único de producción
-  installationCost: number;      // Costo único de instalación
-  municipalTax: number;          // Tasa municipal proporcional
-
-  // Subtotales
-  subtotalNeto: number;          // Suma de todos los costos base
-  agencyCommission: number;      // Comisión de agencia
-  intermediaryCommission: number; // Comisión de intermediario (si aplica)
-
-  // Totales
-  totalNeto: number;             // Sin IVA
-  iva: number;                   // IVA calculado
-  totalBruto: number;            // Con IVA
-
-  // Metadata
-  currency: string;
-  isThirdParty: boolean;
-}
+import {
+  PRICING_CONFIG,
+  GLOBAL_OWNER,
+  calculatePriceBreakdown,
+  type PriceBreakdown,
+} from "./config";
 
 /**
  * Query: Calcular precio para un soporte específico
@@ -62,59 +17,35 @@ export const calculateItemPrice = query({
     campaignDays: v.number(),
     includeIntermediaryCommission: v.optional(v.boolean()),
   },
-  handler: async (ctx, args): Promise<PriceBreakdown | null> => {
+  handler: async (ctx, args): Promise<{ success: true; data: PriceBreakdown } | { success: false; error: string }> => {
     const item = await ctx.db.get(args.inventoryId);
 
     if (!item) {
-      return null;
+      return {
+        success: false,
+        error: `No se encontró el soporte con ID ${args.inventoryId}`,
+      };
     }
 
     const { pricing, owner, code } = item;
-    const isThirdParty = owner !== "Global";
-    const includeIntermediary = args.includeIntermediaryCommission ?? isThirdParty;
+    const isThirdParty = owner !== GLOBAL_OWNER;
 
-    // Cálculo proporcional del alquiler
-    const rentalProportional = (pricing.rental_monthly / PRICING_CONFIG.DAYS_PER_MONTH) * args.campaignDays;
-
-    // Tasa municipal proporcional (asumiendo que es mensual)
-    const municipalTaxProportional = (pricing.municipal_tax / PRICING_CONFIG.DAYS_PER_MONTH) * args.campaignDays;
-
-    // Subtotal neto (sin comisiones)
-    const subtotalNeto =
-      rentalProportional +
-      pricing.production_cost +
-      pricing.installation_cost +
-      municipalTaxProportional;
-
-    // Comisiones
-    const agencyCommission = subtotalNeto * PRICING_CONFIG.AGENCY_COMMISSION_RATE;
-    const intermediaryCommission = includeIntermediary
-      ? subtotalNeto * PRICING_CONFIG.INTERMEDIARY_COMMISSION_RATE
-      : 0;
-
-    // Total neto (con comisiones, sin IVA)
-    const totalNeto = subtotalNeto + agencyCommission + intermediaryCommission;
-
-    // IVA y total bruto
-    const iva = totalNeto * PRICING_CONFIG.IVA_RATE;
-    const totalBruto = totalNeto + iva;
-
-    return {
+    const priceBreakdown = calculatePriceBreakdown({
       inventoryId: args.inventoryId,
       code,
       campaignDays: args.campaignDays,
-      rentalProportional: Math.round(rentalProportional * 100) / 100,
+      rentalMonthly: pricing.rental_monthly,
       productionCost: pricing.production_cost,
       installationCost: pricing.installation_cost,
-      municipalTax: Math.round(municipalTaxProportional * 100) / 100,
-      subtotalNeto: Math.round(subtotalNeto * 100) / 100,
-      agencyCommission: Math.round(agencyCommission * 100) / 100,
-      intermediaryCommission: Math.round(intermediaryCommission * 100) / 100,
-      totalNeto: Math.round(totalNeto * 100) / 100,
-      iva: Math.round(iva * 100) / 100,
-      totalBruto: Math.round(totalBruto * 100) / 100,
+      municipalTax: pricing.municipal_tax,
       currency: pricing.currency,
       isThirdParty,
+      includeIntermediaryCommission: args.includeIntermediaryCommission,
+    });
+
+    return {
+      success: true,
+      data: priceBreakdown,
     };
   },
 });
@@ -132,6 +63,7 @@ export const calculateProposalTotal = query({
   },
   handler: async (ctx, args) => {
     const itemPrices: PriceBreakdown[] = [];
+    const notFoundIds: string[] = [];
     let totalNeto = 0;
     let totalBruto = 0;
     let hasThirdParty = false;
@@ -140,58 +72,36 @@ export const calculateProposalTotal = query({
       const item = await ctx.db.get(itemRequest.inventoryId);
 
       if (!item) {
+        notFoundIds.push(itemRequest.inventoryId);
         continue;
       }
 
       const { pricing, owner, code } = item;
-      const isThirdParty = owner !== "Global";
+      const isThirdParty = owner !== GLOBAL_OWNER;
 
       if (isThirdParty) {
         hasThirdParty = true;
       }
 
-      // Cálculos
-      const rentalProportional = (pricing.rental_monthly / PRICING_CONFIG.DAYS_PER_MONTH) * itemRequest.campaignDays;
-      const municipalTaxProportional = (pricing.municipal_tax / PRICING_CONFIG.DAYS_PER_MONTH) * itemRequest.campaignDays;
-
-      const subtotalNeto =
-        rentalProportional +
-        pricing.production_cost +
-        pricing.installation_cost +
-        municipalTaxProportional;
-
-      const agencyCommission = subtotalNeto * PRICING_CONFIG.AGENCY_COMMISSION_RATE;
-      const intermediaryCommission = isThirdParty
-        ? subtotalNeto * PRICING_CONFIG.INTERMEDIARY_COMMISSION_RATE
-        : 0;
-
-      const itemTotalNeto = subtotalNeto + agencyCommission + intermediaryCommission;
-      const iva = itemTotalNeto * PRICING_CONFIG.IVA_RATE;
-      const itemTotalBruto = itemTotalNeto + iva;
-
-      itemPrices.push({
+      const priceBreakdown = calculatePriceBreakdown({
         inventoryId: itemRequest.inventoryId,
         code,
         campaignDays: itemRequest.campaignDays,
-        rentalProportional: Math.round(rentalProportional * 100) / 100,
+        rentalMonthly: pricing.rental_monthly,
         productionCost: pricing.production_cost,
         installationCost: pricing.installation_cost,
-        municipalTax: Math.round(municipalTaxProportional * 100) / 100,
-        subtotalNeto: Math.round(subtotalNeto * 100) / 100,
-        agencyCommission: Math.round(agencyCommission * 100) / 100,
-        intermediaryCommission: Math.round(intermediaryCommission * 100) / 100,
-        totalNeto: Math.round(itemTotalNeto * 100) / 100,
-        iva: Math.round(iva * 100) / 100,
-        totalBruto: Math.round(itemTotalBruto * 100) / 100,
+        municipalTax: pricing.municipal_tax,
         currency: pricing.currency,
         isThirdParty,
       });
 
-      totalNeto += itemTotalNeto;
-      totalBruto += itemTotalBruto;
+      itemPrices.push(priceBreakdown);
+      totalNeto += priceBreakdown.totalNeto;
+      totalBruto += priceBreakdown.totalBruto;
     }
 
     return {
+      success: true,
       items: itemPrices,
       summary: {
         itemCount: itemPrices.length,
@@ -200,6 +110,12 @@ export const calculateProposalTotal = query({
         currency: "ARS",
         hasThirdPartyItems: hasThirdParty,
       },
+      warnings: notFoundIds.length > 0
+        ? {
+            message: `${notFoundIds.length} soporte(s) no encontrado(s)`,
+            notFoundIds
+          }
+        : null,
     };
   },
 });
@@ -245,7 +161,7 @@ export const calculateByCode = query({
     }
 
     const { pricing, owner, code, location, type } = item;
-    const isThirdParty = owner !== "Global";
+    const isThirdParty = owner !== GLOBAL_OWNER;
 
     // Cálculos
     const rentalProportional = (pricing.rental_monthly / PRICING_CONFIG.DAYS_PER_MONTH) * args.campaignDays;
@@ -308,11 +224,14 @@ export const simulatePrice = query({
     const item = await ctx.db.get(args.inventoryId);
 
     if (!item) {
-      return null;
+      return {
+        success: false,
+        error: `No se encontró el soporte con ID ${args.inventoryId}`,
+      };
     }
 
     const { pricing, owner, code } = item;
-    const isThirdParty = owner !== "Global";
+    const isThirdParty = owner !== GLOBAL_OWNER;
 
     // Usar tasas custom o las default
     const agencyRate = args.customAgencyRate ?? PRICING_CONFIG.AGENCY_COMMISSION_RATE;
@@ -337,6 +256,7 @@ export const simulatePrice = query({
     const totalBruto = totalNeto + iva;
 
     return {
+      success: true,
       code,
       campaignDays: args.campaignDays,
       appliedRates: {
