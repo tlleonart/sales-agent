@@ -1,7 +1,7 @@
 # Project Status - OOH Agent
 
 **Last Updated:** 2026-01-17
-**Current Phase:** Phase 1 Complete - Manual Testing Passed ✅
+**Current Phase:** Phase 1 Complete - All Tests Verified ✅
 **Project Start:** January 2026
 
 ---
@@ -125,9 +125,17 @@
 
 ### Issues encontrados y resueltos durante testing
 
-1. **$fromAI() returning null** (Pricing Engine)
-   - **Problema:** toolWorkflow no pasaba parámetros correctamente
-   - **Solución:** Reemplazar toolWorkflow con Code Tool + JSON schema
+1. **$fromAI() returning null** (Pricing Engine) ✅ RESUELTO
+   - **Problema:** toolWorkflow y $fromAI() expressions no pasaban parámetros correctamente
+   - **Intentos fallidos:**
+     - `inputSource: "passthrough"` en Execute Workflow Trigger
+     - `mappingMode: "autoMapInputData"` en toolWorkflow
+     - Definir inputs con `workflowInputs` mode
+   - **Solución final:** Reemplazar toolWorkflow con HTTP Request Tool (`@n8n/n8n-nodes-langchain.toolHttpRequest`)
+   - **Detalles técnicos:**
+     - Nuevo endpoint Convex `pricing:calculateByCode` acepta código (string) en lugar de ID
+     - HTTP Request Tool usa placeholders `{inventoryCode}` y `{campaignDays}` que el AI completa directamente
+     - Evita completamente el problema de $fromAI()
 
 2. **OpenAI Rate Limiting** (Test 5.1)
    - **Observación:** Heavy testing consumió cuota de tokens
@@ -145,7 +153,7 @@
 
 ### Pendientes Menores
 1. **Credencial SMTP** - Asignar al nodo "Enviar Email" en Third Party Handler
-2. **Google Maps API Key** - Configurar en n8n para mapas en PDF
+2. ~~**Google Maps API Key** - Configurar en n8n para mapas en PDF~~ ✅ COMPLETADO
 3. **Fase 2** - Web App con Next.js (futuro)
 
 ---
@@ -212,6 +220,52 @@
 
 ---
 
+## Resumen de Verificación Final (2026-01-17)
+
+### Tests Ejecutados
+| Test | Query | Resultado |
+|------|-------|-----------|
+| 1.1 | "¿Qué soportes tienen en CABA?" | ✅ 5 soportes encontrados |
+| 2.1 | "Cotiza GFG050 por 30 días" | ✅ Neto $2,076,000, Bruto $2,511,960 |
+| 4.1 | "Genera PDF para Pepsi Argentina" | ✅ PDF multi-página generado |
+
+### Verificación de PDF
+El PDF generado coincide exactamente con el formato de `pdf-example.pdf`:
+- ✅ Portada con logo y grid de imágenes
+- ✅ Tabla resumen con columnas correctas
+- ✅ Product sheets con mockup, specs y mapa
+- ✅ Footer con paginación
+- ✅ Disclaimers sobre IVA
+
+### Fix Aplicado: Pricing Tool
+- **Antes:** toolWorkflow con $fromAI() → parámetros null
+- **Después:** HTTP Request Tool con placeholders → funciona correctamente
+
+### Fix Aplicado: GuardarPropuesta Tool (2026-01-17)
+**Problema:** El PDF mostraba imágenes genéricas (Unsplash) en lugar de datos reales del inventario.
+
+**Causa raíz:** La herramienta `storePendingProposal` solo almacenaba datos básicos (código, tipo, ubicación, días, precios) sin los detalles completos del inventario (imágenes, coordenadas, specs).
+
+**Solución implementada:**
+1. **Nueva mutación Convex:** `storeProposalByCodes` que:
+   - Acepta códigos de inventario (ej: `["GFG001", "GFG002"]`)
+   - Busca automáticamente los detalles completos de cada soporte
+   - Almacena datos ricos: imágenes base, coordenadas (lat/long), specs completos, precios calculados
+
+2. **Nueva herramienta HTTP Request:** `GuardarPropuesta` reemplazada con HTTP Request Tool
+   - Usa placeholders simples: `clientName`, `campaignDays`, `inventoryCodes`
+   - Evita problemas con `$fromAI()` y JSON complejo
+
+3. **AI Agent actualizado:** Instrucciones simplificadas para usar la nueva herramienta
+
+**Datos ahora incluidos en propuestas:**
+- ✅ `base_image_url` - URL de imagen real del soporte
+- ✅ `lat`, `long` - Coordenadas para Google Maps
+- ✅ Specs completos: dimensiones, iluminación, material, resolución
+- ✅ Precios calculados automáticamente con comisiones
+
+---
+
 ## Cómo probar el prototipo
 
 ### Acceder al chat (ya configurado y activo)
@@ -222,9 +276,10 @@ URL: https://carbono14.app.n8n.cloud/webhook/ooh-agent-chat/chat
 ### Ejemplos de consultas para probar
 - "¿Qué soportes tienen disponibles en zona norte?"
 - "Busco espectaculares en CABA"
-- "Dame una cotización para 30 días del soporte GFG050"
+- "Dame una cotización para 30 días del soporte GFG001"
 - "¿Cuánto cuesta una campaña de 15 días en Palermo?"
 - "Muéstrame medianeras disponibles en GBA Sur"
+- "Genera un PDF de propuesta para Coca-Cola con los soportes GFG001, GFG002 y GFG003 por 30 días"
 
 ### Configurar credenciales adicionales (opcional)
 

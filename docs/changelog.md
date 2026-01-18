@@ -4,6 +4,52 @@ Todos los cambios notables al proyecto "OOH Agent" se documentarán en este arch
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
+## [1.2.1] - 2026-01-17 - Pricing Tool Fix & Full Testing Verification
+
+### Fixed
+
+#### Pricing Engine Integration
+- **`$fromAI()` null issue resolved** - Replaced toolWorkflow approach with HTTP Request Tool
+  - Root cause: n8n AI Agent `$fromAI()` expressions in toolWorkflow nodes were returning null
+  - Solution: Use `@n8n/n8n-nodes-langchain.toolHttpRequest` with placeholder parameters
+  - The AI fills in `{inventoryCode}` and `{campaignDays}` placeholders directly
+
+#### Master Chat Workflow (`cg5rOPNa2HHSmBwQ`)
+- **CalcularPrecio tool** - Replaced toolWorkflow with HTTP Request Tool
+  - New tool calls Convex `pricing:calculateByCode` endpoint directly
+  - Uses placeholders: `{inventoryCode}` (string), `{campaignDays}` (number)
+  - Returns detailed pricing breakdown in Spanish
+
+### Added
+
+#### Convex Functions
+- **`pricing:calculateByCode`** - New query that accepts inventory code (string) instead of ID
+  - Searches inventory by code field
+  - Returns full pricing breakdown with Spanish field names
+  - Includes third-party detection and intermediary commission handling
+
+### Verified (Full Manual Testing)
+
+All 8 test cases passed:
+
+| Test | Description | Result |
+|------|-------------|--------|
+| 1.1 | Inventory search by zone (CABA) | ✅ 5 supports found |
+| 1.2 | Inventory search by type | ✅ Working |
+| 1.3 | Combined search | ✅ Working |
+| 2.1 | Quotation (GFG050, 30 days) | ✅ Neto $2,076,000, Bruto $2,511,960 |
+| 2.2 | Third-party quotation | ✅ Includes 10% intermediary |
+| 3.1 | Third-party identification | ✅ Working |
+| 4.1 | PDF generation | ✅ Multi-page PDF generated |
+| 5.1 | Conversational flow | ✅ Working |
+
+### Technical Details
+- HTTP Request Tool avoids $fromAI() limitations in toolWorkflow
+- Pricing calculations verified accurate with IVA 21%
+- PDF matches `pdf-example.pdf` reference format exactly
+
+---
+
 ## [1.2.0] - 2026-01-17 - Professional Multi-Page PDF System
 
 ### Added

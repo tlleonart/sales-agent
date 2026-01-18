@@ -7,6 +7,26 @@ import { mutation } from "./_generated/server";
  * Ejecutar con: npx convex run seed:seedAll
  */
 
+// =============================================================================
+// IMAGE CONFIGURATION FOR PROTOTYPE
+// =============================================================================
+// Base image from GitHub repository - this is the billboard photo used for AI mockup generation.
+// The AI will take this image and composite the client's branding into the advertising space.
+// =============================================================================
+
+// GitHub raw URL for the base billboard image
+const BASE_BILLBOARD_IMAGE = "https://raw.githubusercontent.com/tlleonart/sales-agent/main/image-example.png";
+
+// All inventory items use the same base image for the prototype
+// In production, each support would have its own unique photo
+const BILLBOARD_IMAGES = {
+  // All types use the same base image for AI mockup generation
+  medianera: BASE_BILLBOARD_IMAGE,
+  espectacular: BASE_BILLBOARD_IMAGE,
+  columna: BASE_BILLBOARD_IMAGE,
+  default: BASE_BILLBOARD_IMAGE,
+};
+
 // Datos de inventario basados en ubicaciones reales de GBA y CABA
 const INVENTORY_DATA = [
   // === GBA NORTE ===
@@ -36,7 +56,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG001_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.medianera,
     },
     metrics: {
       daily_ots: 45000,
@@ -68,7 +88,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG002_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.espectacular,
     },
     metrics: {
       daily_ots: 120000,
@@ -100,7 +120,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG003_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.columna,
     },
     metrics: {
       daily_ots: 28000,
@@ -133,7 +153,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG010_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.medianera,
     },
     metrics: {
       daily_ots: 38000,
@@ -165,7 +185,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG011_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.espectacular,
     },
     metrics: {
       daily_ots: 95000,
@@ -198,7 +218,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG020_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.medianera,
     },
     metrics: {
       daily_ots: 42000,
@@ -230,7 +250,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG021_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.columna,
     },
     metrics: {
       daily_ots: 22000,
@@ -263,7 +283,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG050_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.medianera,
     },
     metrics: {
       daily_ots: 180000,
@@ -295,7 +315,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG051_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.espectacular,
     },
     metrics: {
       daily_ots: 350000,
@@ -327,7 +347,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG052_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.columna,
     },
     metrics: {
       daily_ots: 65000,
@@ -359,7 +379,7 @@ const INVENTORY_DATA = [
       status: "available",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG053_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.medianera,
     },
     metrics: {
       daily_ots: 95000,
@@ -391,7 +411,7 @@ const INVENTORY_DATA = [
       status: "reserved",
     },
     media: {
-      base_image_url: "https://storage.example.com/ooh/GFG054_base.jpg",
+      base_image_url: BILLBOARD_IMAGES.espectacular,
     },
     metrics: {
       daily_ots: 220000,

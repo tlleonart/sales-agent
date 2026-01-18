@@ -221,6 +221,79 @@ export const getPricingConfig = query({
 });
 
 /**
+ * Query: Calcular precio por código de inventario
+ * Versión simplificada que acepta código en lugar de ID.
+ * Útil para integraciones con AI tools.
+ */
+export const calculateByCode = query({
+  args: {
+    inventoryCode: v.string(),
+    campaignDays: v.number(),
+  },
+  handler: async (ctx, args) => {
+    // Buscar el item por código
+    const item = await ctx.db
+      .query("inventory")
+      .filter((q) => q.eq(q.field("code"), args.inventoryCode))
+      .first();
+
+    if (!item) {
+      return {
+        success: false,
+        error: `No se encontró el soporte con código ${args.inventoryCode}`,
+      };
+    }
+
+    const { pricing, owner, code, location, type } = item;
+    const isThirdParty = owner !== "Global";
+
+    // Cálculos
+    const rentalProportional = (pricing.rental_monthly / PRICING_CONFIG.DAYS_PER_MONTH) * args.campaignDays;
+    const municipalTaxProportional = (pricing.municipal_tax / PRICING_CONFIG.DAYS_PER_MONTH) * args.campaignDays;
+
+    const subtotalNeto =
+      rentalProportional +
+      pricing.production_cost +
+      pricing.installation_cost +
+      municipalTaxProportional;
+
+    const agencyCommission = subtotalNeto * PRICING_CONFIG.AGENCY_COMMISSION_RATE;
+    const intermediaryCommission = isThirdParty
+      ? subtotalNeto * PRICING_CONFIG.INTERMEDIARY_COMMISSION_RATE
+      : 0;
+
+    const totalNeto = subtotalNeto + agencyCommission + intermediaryCommission;
+    const iva = totalNeto * PRICING_CONFIG.IVA_RATE;
+    const totalBruto = totalNeto + iva;
+
+    return {
+      success: true,
+      codigo: code,
+      tipo: type,
+      ubicacion: location.address,
+      zona: location.zone,
+      propietario: owner,
+      esTercero: isThirdParty,
+      diasCampana: args.campaignDays,
+      desglose: {
+        alquilerProporcional: Math.round(rentalProportional),
+        produccion: pricing.production_cost,
+        instalacion: pricing.installation_cost,
+        tasaMunicipal: Math.round(municipalTaxProportional),
+        subtotalNeto: Math.round(subtotalNeto),
+        comisionAgencia: Math.round(agencyCommission),
+        comisionIntermediario: Math.round(intermediaryCommission),
+      },
+      totalNeto: Math.round(totalNeto),
+      iva: Math.round(iva),
+      totalBruto: Math.round(totalBruto),
+      moneda: "ARS",
+      nota: isThirdParty ? "Precio sujeto a confirmación de disponibilidad (tercero)" : null,
+    };
+  },
+});
+
+/**
  * Query: Simular precio con diferentes comisiones
  * Para negociación de descuentos.
  */
