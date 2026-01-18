@@ -4,6 +4,35 @@ Todos los cambios notables al proyecto "OOH Agent" se documentarán en este arch
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
+## [1.3.0] - 2026-01-18 - DALL-E Image Generation
+
+### Changed
+
+#### n8n Workflows
+- **Image Composer** (`SDjs73CyTsOoPzKr`) - Switched from Replicate SDXL to OpenAI DALL-E 3
+  - Uses existing OpenAI credentials (n8n free OpenAI API credits)
+  - Generates professional billboard mockups with client branding
+  - Output size: 1792x1024 (landscape format for billboards)
+  - Style: Natural, photorealistic street photography
+
+### Why the change
+- Replicate API was hitting rate limits during testing
+- DALL-E 3 uses existing OpenAI credentials (no additional API setup needed)
+- Better quality for billboard-style promotional imagery
+
+### Technical Details
+- Node: `@n8n/n8n-nodes-langchain.openAi` with `resource: image`, `operation: generate`
+- Model: `dall-e-3` with standard quality
+- Prompt template generates urban billboard scenes with client branding
+- Returns image URL directly for PDF integration
+
+### Verified
+- ✅ Image generation tested via Master Chat
+- ✅ Coca Cola billboard mockup generated successfully
+- ✅ Integration with PDF workflow maintained
+
+---
+
 ## [1.2.1] - 2026-01-17 - Pricing Tool Fix & Full Testing Verification
 
 ### Fixed

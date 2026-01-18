@@ -1,6 +1,6 @@
 # Project Status - OOH Agent
 
-**Last Updated:** 2026-01-17
+**Last Updated:** 2026-01-18
 **Current Phase:** Phase 1 Complete - All Tests Verified ✅
 **Project Start:** January 2026
 
@@ -13,7 +13,7 @@
 - [x] Definición de project_spec.md (v2.1)
 - [x] Documentación base (CLAUDE.md, architecture.md)
 - [x] Definición de flujos de datos y lógica de precios
-- [x] Selección de Tech Stack (n8n + Convex + Replicate)
+- [x] Selección de Tech Stack (n8n + Convex + OpenAI DALL-E)
 
 ### Fase 1.1: Data Layer (Convex) ✅ COMPLETADA
 
@@ -55,14 +55,14 @@
 - [x] Conexión HTTP a Convex API (integrada en workflows)
 - [x] Configurar credencial OpenAI en n8n UI
 - [x] Activar y probar Master Chat workflow
-- [x] Workflow: Image Composer (`SDjs73CyTsOoPzKr`) - Replicate API
+- [x] Workflow: Image Composer (`SDjs73CyTsOoPzKr`) - OpenAI DALL-E 3
 - [x] Workflow: PDF Generator (`gPFkNF3tV61AWB70`) - Gotenberg
 - [ ] Implementar envío real de emails para Terceros (pendiente credenciales SMTP)
 
 **Workflows de assets:**
 | Workflow | ID | Nodos | Estado |
 |----------|-----|-------|--------|
-| Image Composer | `SDjs73CyTsOoPzKr` | 5 | **Activo** (Enhanced) |
+| Image Composer | `SDjs73CyTsOoPzKr` | 4 | **Activo** (DALL-E 3) |
 | PDF Generator | `VW93F4HBY5Gz7pCr` | 6 | **Activo** (Redesigned) |
 
 ### Fase 2: MVP (Web App) 🛑 NO INICIADA
@@ -188,7 +188,7 @@
 - `OOH Agent - Inventory Search` (`3BPRHEfXWLSYF8aH`) - Búsqueda de soportes en Convex
 - `OOH Agent - Pricing Engine` (`OXpqBrKT4nrOpQrE`) - Cálculo de cotizaciones
 - `OOH Agent - Third Party Handler` (`FVBUo5gma5SdMjGN`) - Gestión de terceros
-- `OOH Agent - Image Composer` (`SDjs73CyTsOoPzKr`) - Generación de mockups con Replicate
+- `OOH Agent - Image Composer` (`SDjs73CyTsOoPzKr`) - Generación de mockups con DALL-E 3
 - `OOH Agent - PDF Generator` (`VW93F4HBY5Gz7pCr`) - Generación de propuestas PDF (multi-page professional format)
 
 ---
@@ -197,8 +197,8 @@
 
 - [x] Definición de Tech Stack
 - [x] **Convex Project**: `exciting-grasshopper-186` (dev)
-- [x] **OpenAI API Key**: Configurada en .env
-- [x] **Replicate API Key**: Configurada en .env
+- [x] **OpenAI API Key**: Configurada en .env (used for chat + DALL-E image generation)
+- [x] ~~**Replicate API Key**~~: Deprecated - switched to DALL-E 3
 - [x] **SMTP Gmail**: Configurado en .env
 - [x] **n8n Cloud**: `carbono14.app.n8n.cloud`
 
@@ -283,17 +283,9 @@ URL: https://carbono14.app.n8n.cloud/webhook/ooh-agent-chat/chat
 
 ### Configurar credenciales adicionales (opcional)
 
-#### Replicate (para Image Composer)
-```
-1. Ir a https://carbono14.app.n8n.cloud
-2. Menú → Credentials → Add Credential
-3. Buscar "Header Auth"
-4. Name: Replicate API
-5. Header Name: Authorization
-6. Header Value: Token <tu_api_key>
-7. Guardar
-8. Asignar al workflow "OOH Agent - Image Composer"
-```
+#### DALL-E Image Generation
+Image Composer now uses OpenAI DALL-E 3 via the existing OpenAI credentials.
+No additional configuration required - uses the same "n8n free OpenAI API credits" credential.
 
 #### SMTP (para emails a terceros)
 ```

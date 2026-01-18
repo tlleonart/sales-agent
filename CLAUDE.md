@@ -75,7 +75,7 @@ Skills que se activan automáticamente según el contexto de la consulta:
 
 - **Orquestación (Backend Lógico):** n8n (Workflows para chat, lógica de negocio, conexiones API).
 - **Base de Datos:** Convex (Persistencia de inventario, reglas de negocio y logging).
-- **Inteligencia:** OpenAI/Anthropic (NLU y razonamiento) + Replicate/DALL-E (Manipulación de imágenes).
+- **Inteligencia:** OpenAI (NLU y razonamiento + DALL-E 3 para generación de mockups).
 - **Generación de Documentos:** HTML-to-PDF (vía Gotenberg o API externa) orquestado por n8n.
 - **Interfaz (Fase 1):** Chat nativo de n8n.
 - **Interfaz (Fase 2 - Futura):** Next.js App Router + BetterAuth.
@@ -107,7 +107,7 @@ Skills que se activan automáticamente según el contexto de la consulta:
 ## Limitaciones y políticas
 
 **Seguridad: DEBES seguir:**
-- **Secretos:** NUNCA exponer API Keys (OpenAI, Replicate, Convex) en el código o nodos. Usar siempre Credenciales de n8n (`$env`) o Variables de Entorno de Convex.
+- **Secretos:** NUNCA exponer API Keys (OpenAI, Convex) en el código o nodos. Usar siempre Credenciales de n8n (`$env`) o Variables de Entorno de Convex.
 - **Datos:** No hardcodear datos de clientes sensibles en el código.
 
 **Calidad del código (Convex & TypeScript):**
@@ -133,7 +133,7 @@ Skills que se activan automáticamente según el contexto de la consulta:
 | **Master Chat** | Conversación principal, historial, ruteo de intención | Alta |
 | **Inventory Search** | Consultas filtradas a Convex | Alta |
 | **Pricing Engine** | Cálculos de precios (neto, bruto, comisiones) | Alta |
-| **Image Composer** | Llamadas a Replicate para mockups | Media |
+| **Image Composer** | Generación de mockups con DALL-E 3 | Media |
 | **PDF Generator** | HTML-to-PDF con Gotenberg | Media |
 | **Email Notifier** | Notificaciones a terceros | Baja |
 
