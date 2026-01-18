@@ -10,21 +10,21 @@ import { mutation } from "./_generated/server";
 // =============================================================================
 // IMAGE CONFIGURATION FOR PROTOTYPE
 // =============================================================================
-// NOTE: GitHub raw URLs require public repos. Using Unsplash billboard images.
-// For production, upload image-example.png to S3/Cloudflare R2 and update URL.
+// Using GitHub raw URLs from public repository
+// Repository: https://github.com/tlleonart/sales-agent
 // =============================================================================
 
-// Public billboard images from Unsplash (these are real, accessible URLs)
-// These represent what the advertising space looks like
-const BASE_BILLBOARD_IMAGE = "https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=800";
+// Base image for billboard mockups (from public repo)
+const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/tlleonart/sales-agent/main";
+const BASE_BILLBOARD_IMAGE = `${GITHUB_RAW_BASE}/image-example.png`;
 
 // All inventory items use the same base image for the prototype
 // In production, each support would have its own unique photo
 const BILLBOARD_IMAGES = {
-  medianera: "https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=800",
-  espectacular: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800",
-  columna: "https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=800",
-  default: "https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=800",
+  medianera: BASE_BILLBOARD_IMAGE,
+  espectacular: BASE_BILLBOARD_IMAGE,
+  columna: BASE_BILLBOARD_IMAGE,
+  default: BASE_BILLBOARD_IMAGE,
 };
 
 // Datos de inventario basados en ubicaciones reales de GBA y CABA
