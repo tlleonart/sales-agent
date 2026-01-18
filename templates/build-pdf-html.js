@@ -396,7 +396,7 @@ function buildProductSheet(item, pageNumber) {
           <tr><th>OTS diario</th><td>${formatNumber(item.daily_ots)}</td></tr>
         </table>
         <div class="product-map">
-          <img src="${item.map_image_url || `https://maps.googleapis.com/maps/api/staticmap?center=${item.lat},${item.long}&zoom=15&size=300x200&markers=color:red|${item.lat},${item.long}&key=YOUR_API_KEY`}" alt="Ubicación en mapa">
+          <img src="${item.map_image_url || `https://maps.googleapis.com/maps/api/staticmap?center=${item.lat},${item.long}&zoom=15&size=300x200&markers=color:red|${item.lat},${item.long}&key=AIzaSyAXbWpSsu306Ue8qqRSMzGkZZQ_oHJVYJM`}" alt="Ubicación en mapa">
           <a href="https://www.google.com/maps?q=${item.lat},${item.long}" class="map-link" target="_blank">
             » Ver más detalles y mapa «
           </a>
